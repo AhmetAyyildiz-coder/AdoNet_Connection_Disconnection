@@ -20,10 +20,10 @@ namespace AdoNetGirisv2
         {
             InitializeComponent();
             
-            connection = new SqlConnection("Server = DESKTOP-GJ4ARSC\\SQLEXPRESS;" +
-                "Database=TelefonRehberi;User Id=sa;Password=1;");
+            connection = new SqlConnection("Server =(LocalDb)\\MSSQLLocalDB;" +
+                "Database=PhoneGuide;Trusted_Connection=True;");
             command = new SqlCommand();
-            BaglantiAyarla();
+           
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -39,7 +39,17 @@ namespace AdoNetGirisv2
             if (connection.State == ConnectionState.Closed)
             {
                 //eger baglanti yoksa baglantiyi ac
-                connection.Open();
+                try
+                {
+                    connection.Open();
+                }
+                catch (System.Data.SqlClient.SqlException ext)
+                {
+
+                    string a = ext.Message;
+                    MessageBox.Show("Basarisiz Database Bağlantısı => " + a);
+                }
+               
             }
             else
             {
@@ -51,7 +61,7 @@ namespace AdoNetGirisv2
         {
             try
             {
-                command.CommandText = "select * from Rehber";
+                command.CommandText = "select * from Guide";
                 command.Connection = connection;
                 SqlDataReader sqlData = command.ExecuteReader();
                 int toplamSatir = sqlData.FieldCount;
@@ -62,13 +72,13 @@ namespace AdoNetGirisv2
                 }
                 while (sqlData.Read())
                 {
-                    string RehberIsim = sqlData["Isim"].ToString();
-                    string RehberSoyisim = sqlData["Soyisim"].ToString();
-                    string RehberTelefonNumarasi = sqlData["TelefonNumarasi"].ToString();
-                    string RehberEmailAdress = sqlData["EmailAdress"].ToString();
+                    string Name = sqlData["Name"].ToString();
+                    string Surname = sqlData["Surname"].ToString();
+                    string PhoneNumber = sqlData["PhoneNumber"].ToString();
+                    string EmailAdress = sqlData["EmailAdress"].ToString();
                     listBoxRehber.Items.Add(string.Format("{0} {1} {2} {3}",
-                        RehberIsim, RehberSoyisim,
-                        RehberEmailAdress, RehberTelefonNumarasi));
+                        Name, Surname,
+                        PhoneNumber, EmailAdress));
                 }
 
             }
@@ -92,24 +102,27 @@ namespace AdoNetGirisv2
         {
             try
             {
-                command = new SqlCommand("insert into Rehber (ID , Isim , Soyisim" +
-                " , TelefonNumarasi , EmailAdress)" +
+                command = new SqlCommand("insert into Guide (ID , Name , Surname" +
+                " , PhoneNumber , EmailAdress)" +
                 " values " +
-                "(@ID , @Isim , @Soyisim , @TelefonNumarasi , @EmailAdress)",
+                "(@ID , @Name , @Surname , @PhoneNumber , @EmailAdress)",
                 connection);
                 command.Parameters.Add("@ID", SqlDbType.UniqueIdentifier).Value = Guid.NewGuid();
-                command.Parameters.Add("@Isim", SqlDbType.NVarChar).Value = textBoxIsim.Text;
-                command.Parameters.Add("@Soyisim", SqlDbType.NVarChar).Value = textBoxSoyisim.Text;
-                command.Parameters.Add("@TelefonNumarasi", SqlDbType.NVarChar).Value = textBoxTelefonNumarasi.Text;
+                command.Parameters.Add("@Name", SqlDbType.NVarChar).Value = textBoxIsim.Text;
+                command.Parameters.Add("@Surname", SqlDbType.NVarChar).Value = textBoxSoyisim.Text;
+                command.Parameters.Add("@PhoneNumber", SqlDbType.NVarChar).Value = textBoxTelefonNumarasi.Text;
                 command.Parameters.Add("@EmailAdress", SqlDbType.NVarChar).Value = textBoxEmail.Text;
                 BaglantiAyarla();
                 int etkilenenSutunSayisi = command.ExecuteNonQuery(); // sorgu icin gerekli fonksiyon
                                                                       // bu fonksiyon geriye etkilenen satir sayisini int olarak dondurur.
-        
+                if (etkilenenSutunSayisi == 1)
+                {
+                    MessageBox.Show("Tebrikler Kayıt eklenildi");
+                }
             }
             catch (Exception ex)
             {
-
+                MessageBox.Show(ex.Message);
                 
             }
             finally

@@ -20,8 +20,8 @@ namespace DataCekmeV2
         public Disconnection()
         {
             InitializeComponent();
-            connection = new SqlConnection("Server = DESKTOP-GJ4ARSC\\SQLEXPRESS;" +
-               "Database=TelefonRehberi;User Id=sa;Password=1;");
+            connection = new SqlConnection("(LocalDb)\\MSSQLLocalDB;" +
+                "Database=PhoneGuide;Trusted_Connection=True;");
             command = new SqlCommand();
 
         }
@@ -30,7 +30,7 @@ namespace DataCekmeV2
         {
             try
             {
-                SqlDataAdapter dataAdapter = new SqlDataAdapter("select  * from Rehber", connection);
+                SqlDataAdapter dataAdapter = new SqlDataAdapter("select  * from Guide", connection);
 
                 dataAdapter.Fill(table); // database'den cekilen tabloyu bir tablo nesnesine bastirdik.
                 dataGridView1.DataSource = table;
@@ -107,9 +107,9 @@ namespace DataCekmeV2
 
                 var ChangedValueID = table.Rows[RowCellIndex].ItemArray[0];
 
-                command.CommandText = "update Rehber set Isim = @isim where ID = @id";
+                command.CommandText = "update Guide set Name = @Name where ID = @id";
                 var comtext = command.CommandText;
-                command.Parameters.Add("@isim", SqlDbType.NVarChar).Value = changedValueInCell;
+                command.Parameters.Add("@Name", SqlDbType.NVarChar).Value = changedValueInCell;
                 command.Parameters.Add("@id", SqlDbType.UniqueIdentifier).Value = ChangedValueID;
 
 
